@@ -66,7 +66,6 @@ void mdnKernel::tick() {
 	}
 
 	// loop slowdown
-	clock_prescale_set (clock_div_256);
 	if (_min_timeout > 10) {
 		delay(_min_timeout - 10);
 	}
