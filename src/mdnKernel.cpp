@@ -23,16 +23,18 @@ void mdnKernel::tick() {
 	// process loop list
 	node *i = _loop_first;
 	while (i != NULL) {
-		if (i->timeout <= tick_interval) {
-			i->callback();
-			i->timeout = i->interval;
-		} else {
-			i->timeout -= tick_interval;
-		}
+		if (i->running) {
+			if (i->timeout <= tick_interval) {
+				i->callback();
+				i->timeout = i->interval;
+			} else {
+				i->timeout -= tick_interval;
+			}
 
-		// calculate lowest timeout
-		if (i->timeout < _min_timeout) {
-			_min_timeout = i->timeout;
+			// calculate lowest timeout
+			if (i->timeout < _min_timeout) {
+				_min_timeout = i->timeout;
+			}
 		}
 
 		// next item in list
@@ -42,24 +44,29 @@ void mdnKernel::tick() {
 	// process timer list
 	i = _timer_first;
 	while (i != NULL) {
-		if (i->timeout <= tick_interval) {
-			i->callback();
+		if (i->running) {
+			if (i->timeout <= tick_interval) {
+				i->callback();
 
-			// tmp pointer
-			node *j = i;
+				// tmp pointer
+				node *j = i;
 
-			// next item in list
-			i = i->next;
+				// next item in list
+				i = i->next;
 
-			_timer_delete(j);
-		} else {
-			i->timeout -= tick_interval;
+				_timer_delete(j);
+			} else {
+				i->timeout -= tick_interval;
 
-			// calculate lowest timeout
-			if (i->timeout < _min_timeout) {
-				_min_timeout = i->timeout;
+				// calculate lowest timeout
+				if (i->timeout < _min_timeout) {
+					_min_timeout = i->timeout;
+				}
+
+				// next item in list
+				i = i->next;
 			}
-
+		} else {
 			// next item in list
 			i = i->next;
 		}
@@ -71,13 +78,14 @@ void mdnKernel::tick() {
 	}
 }
 
-void mdnKernel::loop(unsigned long _interval, void (*_callback)()) {
+mdnKernel::node* mdnKernel::loop(unsigned long _interval, void (*_callback)()) {
 	// create new item
 	node *_item = new node;
 	_item->interval = _interval;
 	_item->timeout = _interval;
 	_item->callback = _callback;
 	_item->next = NULL;
+	_item->running = true;
 
 	// add item to list
 	if (_loop_first == NULL) {
@@ -89,15 +97,18 @@ void mdnKernel::loop(unsigned long _interval, void (*_callback)()) {
 		_loop_last->next = _item;
 		_loop_last = _item;
 	}
+
+	return _item;
 }
 
-void mdnKernel::timer(unsigned long _interval, void (*_callback)()) {
+mdnKernel::node* mdnKernel::timer(unsigned long _interval, void (*_callback)()) {
 	// create new item
 	node *_item = new node;
 	_item->interval = _interval;
 	_item->timeout = _interval;
 	_item->callback = _callback;
 	_item->next = NULL;
+	_item->running = true;
 
 	// add item to list
 	if (_timer_first == NULL) {
@@ -109,6 +120,8 @@ void mdnKernel::timer(unsigned long _interval, void (*_callback)()) {
 		_timer_last->next = _item;
 		_timer_last = _item;
 	}
+
+	return _item;
 }
 
 void mdnKernel::_timer_delete(node *timer) {
@@ -132,4 +145,12 @@ void mdnKernel::_timer_delete(node *timer) {
 	timer->next = NULL;
 	timer->previous = NULL;
 	delete timer;
+}
+
+void mdnKernel::stop(node *target) {
+	target->running = false;
+}
+
+void mdnKernel::start(node *target) {
+	target->running = true;
 }

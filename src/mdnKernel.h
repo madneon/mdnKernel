@@ -12,6 +12,14 @@
 
 class mdnKernel {
 	public:
+		struct node {
+			unsigned long interval;
+			unsigned long timeout;
+			void (*callback)();
+			node *previous, *next;
+			bool running;
+		};
+
 		mdnKernel(); // constructor
 
 		unsigned long tick_current = 0; // current tick
@@ -19,16 +27,14 @@ class mdnKernel {
 		unsigned long tick_interval = 0; // current interval between ticks
 
 		void tick(); // in loop() handler
-		void loop(unsigned long _interval, void (*_callback)()); // register new loop function
-		void timer(unsigned long _interval, void (*_callback)()); // register new timer function
+
+		node* loop(unsigned long _interval, void (*_callback)()); // register new loop function
+		node* timer(unsigned long _interval, void (*_callback)()); // register new timer function
+
+		void stop(node *target);
+		void start(node *target);
 
 	private:
-		struct node {
-			unsigned long interval;
-			unsigned long timeout;
-			void (*callback)();
-			node *previous, *next;
-		};
 
 		node *_loop_first, *_loop_last, *_timer_first, *_timer_last = NULL;
 
