@@ -6,8 +6,8 @@
 */
 
 #include <mdnKernel.h>
-#include <avr/power.h>
 
+// constructor
 mdnKernel::mdnKernel() {
 }
 
