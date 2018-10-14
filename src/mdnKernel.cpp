@@ -11,7 +11,7 @@
 mdnKernel::mdnKernel() {
 }
 
-void mdnKernel::tick() {
+void mdnKernel::tick(bool is_exclusive = true) {
 	// calculate tick
 	tick_last = tick_current;
 	tick_current = millis();
@@ -72,10 +72,12 @@ void mdnKernel::tick() {
 		}
 	}
 
-	// loop slowdown
-	if ((_loop_first != NULL) || (_timer_first != NULL)) {
-		if (_min_timeout > 10) {
-			delay(_min_timeout - 10);
+	// loop slowdown (only if exclusive call)
+	if (is_exclusive) {
+		if ((_loop_first != NULL) || (_timer_first != NULL)) {
+			if (_min_timeout > 10) {
+				delay(_min_timeout - 10);
+			}
 		}
 	}
 }

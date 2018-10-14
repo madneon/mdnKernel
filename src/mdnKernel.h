@@ -26,7 +26,7 @@ class mdnKernel {
 		unsigned long tick_last = 0; // last tick
 		unsigned long tick_interval = 0; // current interval between ticks
 
-		void tick(); // in loop() handler
+		void tick(bool is_exclusive = true); // in loop() handler
 
 		node* loop(unsigned long _interval, void (*_callback)()); // register new loop function
 		node* timer(unsigned long _interval, void (*_callback)()); // register new timer function
