@@ -73,8 +73,10 @@ void mdnKernel::tick() {
 	}
 
 	// loop slowdown
-	if (_min_timeout > 10) {
-		delay(_min_timeout - 10);
+	if ((_loop_first != NULL) || (_timer_first != NULL)) {
+		if (_min_timeout > 10) {
+			delay(_min_timeout - 10);
+		}
 	}
 }
 
@@ -153,4 +155,8 @@ void mdnKernel::stop(node *target) {
 
 void mdnKernel::start(node *target) {
 	target->running = true;
+}
+
+void mdnKernel::change(unsigned long _interval, node *target) {
+	target->interval = _interval;
 }

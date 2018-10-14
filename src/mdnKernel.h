@@ -33,6 +33,7 @@ class mdnKernel {
 
 		void stop(node *target);
 		void start(node *target);
+		void change(unsigned long _interval, node *target);
 
 	private:
 
